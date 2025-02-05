@@ -1,6 +1,80 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:ukk_2025/homepage.dart';
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
-class Login extends StatelessWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isPasswordVisible = false;
+
+  Future<void> _login() async {
+    if (_emailController.text.trim().isEmpty ||
+        _passwordController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Email dan password tidak boleh kosong'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    try {
+      final supabase = Supabase.instance.client;
+
+      // **Debugging: Cek apakah Supabase sudah terinisialisasi dengan benar**
+      print('⚡️ Supabase Instance: ${supabase.toString()}');
+
+      // **Coba login dengan Supabase**
+      final response = await supabase.auth.signInWithPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      // **Debugging: Cek respons dari Supabase**
+      print('🔹 Response dari Supabase: $response');
+
+      if (response.user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login gagal, periksa email atau password Anda.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // Ambil informasi pengguna
+      final user = response.user!;
+      print('✅ Login sukses: ${user.id}, Email: ${user.email}');
+
+      // Navigasi ke halaman utama
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomePage(
+            userId: user.id,
+            username: user.email ?? 'User',
+            userRole: 'pegawai', // Atur sesuai role user jika ada
+          ),
+        ),
+      );
+    } catch (e) {
+      print('❌ Error saat login: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Terjadi kesalahan: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
 @override
 Widget build(BuildContext context) {
