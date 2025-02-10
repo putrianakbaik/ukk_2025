@@ -123,20 +123,36 @@ class _UserManagementPageState extends State<UserManagementPage> {
 
   // Fungsi menghapus pengguna dari Supabase
   Future<void> _deleteUser(String userId) async {
-    try {
-      final response = await Supabase.instance.client.from('users').delete().eq('id', userId).execute();
-      if (response.error == null) {
-        setState(() {
-          users = getUsers();
-        });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Pengguna berhasil dihapus')));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal menghapus pengguna')));
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+  try {
+    final response = await Supabase.instance.client
+        .from('users')
+        .delete()
+        .eq('id', userId)
+        .single(); // Mengambil 1 data setelah delete
+
+    // Memeriksa apakah ada error di response
+    if (response.error != null) {
+      // Jika ada error, tampilkan pesan kesalahan
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal menghapus pengguna: ${response.error!.message}')),
+      );
+    } else {
+      // Jika tidak ada error, tampilkan pesan sukses dan perbarui daftar pengguna
+      setState(() {
+        users = getUsers();  // Memperbarui data pengguna setelah penghapusan
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Pengguna berhasil dihapus')),
+      );
     }
+  } catch (e) {
+    // Menangani error lain, misalnya masalah jaringan
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Terjadi kesalahan: $e')),
+    );
   }
+}
+
 }
 
 class AddEditUserPage extends StatefulWidget {
@@ -183,9 +199,9 @@ class _AddEditUserPageState extends State<AddEditUserPage> {
             ElevatedButton(
               onPressed: () {
                 if (widget.user != null) {
-                  _updateUser();
+                  _showConfirmationDialog('update');
                 } else {
-                  _createUser();
+                  _showConfirmationDialog('add');
                 }
               },
               child: Text(widget.user != null ? 'Update' : 'Tambah'),
@@ -196,12 +212,46 @@ class _AddEditUserPageState extends State<AddEditUserPage> {
     );
   }
 
+  // Menampilkan dialog konfirmasi
+  void _showConfirmationDialog(String action) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(action == 'add' ? 'Tambah Pengguna' : 'Update Pengguna'),
+          content: Text('Apakah Anda yakin ingin ${action == 'add' ? 'menambah' : 'mengupdate'} pengguna ini?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Menutup dialog
+              },
+              child: Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Menutup dialog
+                if (action == 'add') {
+                  _createUser(); // Menambahkan pengguna baru
+                } else {
+                  _updateUser(); // Mengupdate pengguna yang sudah ada
+                }
+              },
+              child: Text(action == 'add' ? 'Tambah' : 'Update'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Fungsi untuk menambah pengguna
   Future<void> _createUser() async {
     try {
       final response = await Supabase.instance.client.from('users').insert({
         'username': _usernameController.text,
         'password': _passwordController.text,
       }).execute();
+
       if (response.error == null) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Pengguna berhasil ditambahkan')));
@@ -213,12 +263,14 @@ class _AddEditUserPageState extends State<AddEditUserPage> {
     }
   }
 
+  // Fungsi untuk mengupdate pengguna
   Future<void> _updateUser() async {
     try {
       final response = await Supabase.instance.client.from('users').update({
         'username': _usernameController.text,
         'password': _passwordController.text,
       }).eq('id', widget.user!['id']).execute();
+
       if (response.error == null) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Pengguna berhasil diupdate')));
@@ -230,3 +282,5 @@ class _AddEditUserPageState extends State<AddEditUserPage> {
     }
   }
 }
+
+

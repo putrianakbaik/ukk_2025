@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'login.dart';
+import 'produk.dart';   
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   final String username;
   final int id;
   final String password;
@@ -9,10 +10,30 @@ class HomePage extends StatelessWidget {
   const HomePage({Key? key, required this.username, required this.id, required this.password}) : super(key: key);
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0; // Menyimpan index yang aktif di navbar
+
+  // Daftar halaman yang akan ditampilkan
+  final List<Widget> _pages = [
+    ProdukManagementPage(),    // Halaman Produk
+ 
+  ];
+
+  // Fungsi untuk mengubah halaman berdasarkan index
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Welcome to Aplikasir, $username"),
+        title: Text("Welcome to Aplikasir, ${widget.username}"),
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
@@ -26,18 +47,24 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Selamat datang, $username!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+      body: _pages[_selectedIndex], // Menampilkan halaman berdasarkan index yang dipilih
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex, // Menandakan halaman yang aktif
+        onTap: _onItemTapped, // Fungsi yang dipanggil saat item navbar ditekan
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Penjualan',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.production_quantity_limits),
+            label: 'Produk',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people),
+            label: 'Pelanggan',
+          ),
+        ],
       ),
     );
   }

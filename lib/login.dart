@@ -18,72 +18,60 @@ class _LoginPageState extends State<LoginPage> {
 
   final supabase = Supabase.instance.client;
 
-  Future<void> _signIn() async {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> signIn() async {
+    if (_formKey.currentState!.validate()) {
+      // Jika form valid, lanjutkan proses sign in
+      setState(() {
+        _isLoading = true;
+      });
 
-    setState(() {
-      _isLoading = true;
-    });
+      try {
+        // Mengambil data pengguna berdasarkan username dan password dari Supabase
+        final response = await Supabase.instance.client
+            .from('users')
+            .select()
+            .eq('username', _usernameController.text)  // Pencarian berdasarkan username
+            .eq('password', _passwordController.text)  // Pencarian berdasarkan password
+            .execute();
 
-    try {
-      final response = await supabase
-          .from('users')
-          .select()
-          .eq('username', _usernameController.text)
-          .eq('password', _passwordController.text)
-          .maybeSingle();
+        // Memeriksa apakah response.data berisi data pengguna
+        if (response.data != null && response.data.isNotEmpty) {
+          final user = response.data[0];  // Ambil data pengguna pertama dari response.data
+          final userId = user['id'];  // Ambil id pengguna
+          final username = user['username'];  // Ambil username pengguna
+          final password = user['password'];  // Ambil password pengguna
 
-      if (response != null) {
-        // Ambil data dari response
-        final userId = response['id']; // Sesuaikan dengan field di database
-        final username = response['username'];
-        final password = response['password'];
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Login berhasil!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-
-          // Navigasi ke HomePage dengan data yang benar
+          // Menyimpan data pengguna untuk digunakan di halaman berikutnya
+          print('User ID: $userId');
+          print('Username: $username');
+          print('Password: $password');
+          
+          // Navigasi ke halaman utama atau halaman lain
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (context) => HomePage(
-                username: username, 
-                password: password,
-                id: userId, 
-              ),
-            ),
+            MaterialPageRoute(builder: (context) => HomePage(username: username, id: userId, password: password)),
           );
-        }
-      } else {
-        if (mounted) {
+        } else {
+          // Menampilkan pesan jika username atau password salah
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Username atau password salah'),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text('Username atau Password salah')),
           );
         }
-      }
-    } catch (error) {
-      if (mounted) {
+      } catch (e) {
+        // Menangani kesalahan lain (misalnya, masalah jaringan atau server)
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Terjadi kesalahan: ${error.toString()}'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Terjadi kesalahan: $e')),
         );
-      }
-    } finally {
-      if (mounted) {
+      } finally {
         setState(() {
           _isLoading = false;
         });
       }
+    } else {
+      // Jika form tidak valid, tampilkan notifikasi
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Harap diisi terlebih dahulu')),
+      );
     }
   }
 
@@ -123,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
               _isLoading
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
-                      onPressed: _signIn,
+                      onPressed: signIn,
                       child: const Text('Login'),
                     ),
             ],
