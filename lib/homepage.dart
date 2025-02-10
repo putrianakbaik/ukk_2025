@@ -12,7 +12,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Welcome, $username"),
+        title: Text("Welcome to Aplikasir, $username"),
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
@@ -35,26 +35,6 @@ class HomePage extends StatelessWidget {
               'Selamat datang, $username!',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 20),
-            Text(
-              'User ID: $id',
-              style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
-            ),
-            SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: () {
-                // Tambahkan aksi lain di sini
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Tombol aksi lainnya ditekan!')),
-                );
-              },
-              child: Text("Aksi Lain"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                textStyle: TextStyle(fontSize: 16),
-              ),
             ),
           ],
         ),
