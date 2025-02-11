@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'homepage.dart';
 
 class ProdukManagementPage extends StatefulWidget {
   @override
@@ -16,28 +15,48 @@ class _ProdukManagementPageState extends State<ProdukManagementPage> {
     products = getProducts(); // Mengambil daftar produk dari Supabase
   }
 
-  // Mengambil daftar produk
+  // ✅ Mengambil daftar produk
   Future<List<Map<String, dynamic>>> getProducts() async {
     final response = await Supabase.instance.client.from('produk').select().execute();
 
-    // Memeriksa error dari response
     if (response.error != null) {
-      throw Exception('Failed to load products: ${response.error?.message}');
+      throw Exception('Gagal mengambil produk: ${response.error?.message}');
     }
 
-    // Kembalikan data produk dalam bentuk List
     return List<Map<String, dynamic>>.from(response.data ?? []);
   }
 
-  // Fungsi untuk menambah produk
-  Future<void> _addProduct(String name, double price) async {
-    try {
-      final response = await Supabase.instance.client.from('produk').insert([
-        {'name': name, 'price': price}
-      ]).execute();
+  // ✅ Menambah produk
+  Future<void> _addProduct(String name, double price, int stock) async {
+    // Cek apakah produk dengan nama yang sama sudah ada
+    final existingProducts = await Supabase.instance.client
+        .from('produk')
+        .select()
+        .eq('namaproduk', name)
+        .execute();
 
+    if (existingProducts.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal mengecek produk')));
+      return;
+    }
+
+    if (existingProducts.data != null && existingProducts.data.isNotEmpty) {
+      // Jika produk sudah ada
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Produk dengan nama $name sudah ada!')));
+      return;
+    }
+
+    try {
+      final response = await Supabase.instance.client.from('produk').insert([{
+        'namaproduk': name,
+        'harga': price,
+        'stok': stock,
+      }]).execute();
+
+      // Logging response error
       if (response.error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal menambah produk')));
+        print("Error: ${response.error?.message}");
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal menambah produk: ${response.error?.message}')));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Produk berhasil ditambahkan')));
         setState(() {
@@ -45,17 +64,19 @@ class _ProdukManagementPageState extends State<ProdukManagementPage> {
         });
       }
     } catch (e) {
+      print("Error caught: $e");
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
-  // Fungsi untuk mengupdate produk
-  Future<void> _updateProduct(String id, String name, double price) async {
+  // ✅ Mengupdate produk
+  Future<void> _updateProduct(String id, String name, double price, int stock) async {
     try {
       final response = await Supabase.instance.client.from('produk').update({
-        'name': name,
-        'price': price,
-      }).eq('id', id).execute();
+        'namaproduk': name,
+        'harga': price,
+        'stok': stock,
+      }).eq('produkid', id).execute();
 
       if (response.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal memperbarui produk')));
@@ -70,10 +91,10 @@ class _ProdukManagementPageState extends State<ProdukManagementPage> {
     }
   }
 
-  // Fungsi untuk menghapus produk
+  // ✅ Menghapus produk
   Future<void> _deleteProduct(String id) async {
     try {
-      final response = await Supabase.instance.client.from('produk').delete().eq('id', id).execute();
+      final response = await Supabase.instance.client.from('produk').delete().eq('produkid', id).execute();
 
       if (response.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal menghapus produk')));
@@ -97,7 +118,6 @@ class _ProdukManagementPageState extends State<ProdukManagementPage> {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-              // Tampilkan form untuk tambah produk
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
@@ -110,7 +130,7 @@ class _ProdukManagementPageState extends State<ProdukManagementPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: FutureBuilder<List<Map<String, dynamic>>>(
+        child: FutureBuilder<List<Map<String, dynamic>>>( // Menunggu data produk
           future: products,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -126,15 +146,14 @@ class _ProdukManagementPageState extends State<ProdukManagementPage> {
                 itemBuilder: (context, index) {
                   final product = productList[index];
                   return ListTile(
-                    title: Text(product['name']),
-                    subtitle: Text('Harga: \$${product['price']}'),
+                    title: Text(product['namaproduk']),
+                    subtitle: Text('Harga: Rp${product['harga']} | Stok: ${product['stok']}'),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
                           icon: Icon(Icons.edit),
                           onPressed: () {
-                            // Tampilkan form untuk edit produk
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
@@ -149,8 +168,7 @@ class _ProdukManagementPageState extends State<ProdukManagementPage> {
                         IconButton(
                           icon: Icon(Icons.delete),
                           onPressed: () {
-                            // Konfirmasi penghapusan produk
-                            _confirmDeleteProduct(product['id']);
+                            _deleteProduct(product['produkid'].toString());
                           },
                         ),
                       ],
@@ -164,38 +182,11 @@ class _ProdukManagementPageState extends State<ProdukManagementPage> {
       ),
     );
   }
-
-  // Mengonfirmasi penghapusan produk
-  void _confirmDeleteProduct(String productId) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Konfirmasi Hapus'),
-          content: Text('Apakah Anda yakin ingin menghapus produk ini?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Batal'),
-            ),
-            TextButton(
-              onPressed: () {
-                _deleteProduct(productId);
-                Navigator.of(context).pop();
-              },
-              child: Text('Hapus'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }
 
+// ✅ Dialog Tambah Produk
 class AddProductDialog extends StatefulWidget {
-  final Function(String, double) onAdd;
+  final Function(String, double, int) onAdd;
 
   const AddProductDialog({Key? key, required this.onAdd}) : super(key: key);
 
@@ -206,6 +197,7 @@ class AddProductDialog extends StatefulWidget {
 class _AddProductDialogState extends State<AddProductDialog> {
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
+  final _stockController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -223,12 +215,21 @@ class _AddProductDialogState extends State<AddProductDialog> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(labelText: 'Harga Produk'),
           ),
+          TextField(
+            controller: _stockController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(labelText: 'Jumlah Stok'),
+          ),
         ],
       ),
       actions: [
         TextButton(
           onPressed: () {
-            widget.onAdd(_nameController.text, double.parse(_priceController.text));
+            final name = _nameController.text;
+            final price = double.tryParse(_priceController.text) ?? 0.0;
+            final stock = int.tryParse(_stockController.text) ?? 0;
+
+            widget.onAdd(name, price, stock);
             Navigator.of(context).pop();
           },
           child: Text('Simpan'),
@@ -244,9 +245,10 @@ class _AddProductDialogState extends State<AddProductDialog> {
   }
 }
 
+// ✅ Dialog Edit Produk
 class EditProductDialog extends StatefulWidget {
   final Map<String, dynamic> product;
-  final Function(String, String, double) onEdit;
+  final Function(String, String, double, int) onEdit;
 
   const EditProductDialog({Key? key, required this.product, required this.onEdit}) : super(key: key);
 
@@ -257,12 +259,14 @@ class EditProductDialog extends StatefulWidget {
 class _EditProductDialogState extends State<EditProductDialog> {
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
+  final _stockController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _nameController.text = widget.product['name'];
-    _priceController.text = widget.product['price'].toString();
+    _nameController.text = widget.product['namaproduk'];
+    _priceController.text = widget.product['harga'].toString();
+    _stockController.text = widget.product['stok'].toString();
   }
 
   @override
@@ -281,12 +285,26 @@ class _EditProductDialogState extends State<EditProductDialog> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(labelText: 'Harga Produk'),
           ),
+          TextField(
+            controller: _stockController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(labelText: 'Jumlah Stok'),
+          ),
         ],
       ),
       actions: [
         TextButton(
           onPressed: () {
-            widget.onEdit(widget.product['id'], _nameController.text, double.parse(_priceController.text));
+            final name = _nameController.text;
+            final price = double.tryParse(_priceController.text) ?? 0.0;
+            final stock = int.tryParse(_stockController.text) ?? 0;
+
+            widget.onEdit(
+              widget.product['produkid'].toString(),
+              name,
+              price,
+              stock,
+            );
             Navigator.of(context).pop();
           },
           child: Text('Simpan'),
