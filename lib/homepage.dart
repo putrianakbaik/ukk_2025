@@ -3,6 +3,7 @@ import 'login.dart';
 import 'produk.dart'; 
 import 'penjualan.dart'; 
 import 'pelanggan.dart';
+import 'user.dart'; // Pastikan import yang benar untuk UserManagementPage
 
 class HomePage extends StatefulWidget {
   final String username;
@@ -16,12 +17,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 1; 
+  int _selectedIndex = 1;
 
+  // Mengupdate halaman yang ada di _pages dengan parameter yang benar
   final List<Widget> _pages = [
-    PenjualanPage(),    
-    ProdukManagementPage(),  
-    PelangganPage(),    
+    PenjualanPage(),        // Halaman Penjualan
+    ProdukManagementPage(), // Halaman Produk
+    PelangganPage(),        // Halaman Pelanggan
+    UserManagementPage(     // Pastikan parameter dikirim dengan benar
+      
+    ),
   ];
 
   void _onItemTapped(int index) {
@@ -49,10 +54,13 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: _pages[_selectedIndex], //  tampil pertama kali
+      body: _pages[_selectedIndex], // Tampilkan halaman sesuai index yang dipilih
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex, 
-        onTap: _onItemTapped, 
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        backgroundColor: Colors.blue, // Menambahkan warna latar belakang untuk BottomNavigationBar
+        selectedItemColor: const Color.fromARGB(255, 6, 90, 237), // Warna item yang dipilih
+        unselectedItemColor: const Color.fromARGB(255, 6, 90, 237), // Warna item yang tidak dipilih
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),
@@ -65,6 +73,10 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.people),
             label: 'Pelanggan',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle),
+            label: 'User Management',
           ),
         ],
       ),
