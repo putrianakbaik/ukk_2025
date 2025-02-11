@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'login.dart';
-import 'produk.dart';   
+import 'produk.dart'; 
+import 'penjualan.dart'; 
+import 'pelanggan.dart';
 
 class HomePage extends StatefulWidget {
   final String username;
@@ -14,18 +16,19 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0; // Menyimpan index yang aktif di navbar
+  int _selectedIndex = 1; 
 
-  // Daftar halaman yang akan ditampilkan
   final List<Widget> _pages = [
-    ProdukManagementPage(),    // Halaman Produk
- 
+    PenjualanPage(),    
+    ProdukManagementPage(),  
+    PelangganPage(),    
   ];
 
-  // Fungsi untuk mengubah halaman berdasarkan index
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
+      if (index >= 0 && index < _pages.length) {
+        _selectedIndex = index;
+      }
     });
   }
 
@@ -38,7 +41,6 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () {
-              // Navigasi ke halaman login (logout)
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => LoginPage()),
@@ -47,10 +49,10 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: _pages[_selectedIndex], // Menampilkan halaman berdasarkan index yang dipilih
+      body: _pages[_selectedIndex], //  tampil pertama kali
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex, // Menandakan halaman yang aktif
-        onTap: _onItemTapped, // Fungsi yang dipanggil saat item navbar ditekan
+        currentIndex: _selectedIndex, 
+        onTap: _onItemTapped, 
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),
