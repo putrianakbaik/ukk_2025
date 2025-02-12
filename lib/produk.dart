@@ -113,7 +113,8 @@ class _ProdukManagementPageState extends State<ProdukManagementPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Manajemen Produk"),
+        title: Text("Manajemen Produk", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.blueAccent,
         actions: [
           IconButton(
             icon: Icon(Icons.add),
@@ -145,33 +146,44 @@ class _ProdukManagementPageState extends State<ProdukManagementPage> {
                 itemCount: productList.length,
                 itemBuilder: (context, index) {
                   final product = productList[index];
-                  return ListTile(
-                    title: Text(product['namaproduk']),
-                    subtitle: Text('Harga: Rp${product['harga']} | Stok: ${product['stok']}'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.edit),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return EditProductDialog(
-                                  product: product,
-                                  onEdit: _updateProduct,
-                                );
-                              },
-                            );
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.delete),
-                          onPressed: () {
-                            _deleteProduct(product['produkid'].toString());
-                          },
-                        ),
-                      ],
+                  return Card(
+                    margin: EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 4, // Menambahkan bayangan
+                    child: ListTile(
+                      title: Text(
+                        product['namaproduk'],
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        'Harga: Rp${product['harga']} | Stok: ${product['stok']}',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.edit, color: Colors.blueAccent),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return EditProductDialog(
+                                    product: product,
+                                    onEdit: _updateProduct,
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              _deleteProduct(product['produkid'].toString());
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -202,23 +214,37 @@ class _AddProductDialogState extends State<AddProductDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Tambah Produk'),
+      title: Text('Tambah Produk', style: TextStyle(fontWeight: FontWeight.bold)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
             controller: _nameController,
-            decoration: InputDecoration(labelText: 'Nama Produk'),
+            decoration: InputDecoration(
+              labelText: 'Nama Produk',
+              labelStyle: TextStyle(color: Colors.blueAccent),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
           ),
+          SizedBox(height: 10),
           TextField(
             controller: _priceController,
             keyboardType: TextInputType.number,
-            decoration: InputDecoration(labelText: 'Harga Produk'),
+            decoration: InputDecoration(
+              labelText: 'Harga Produk',
+              labelStyle: TextStyle(color: Colors.blueAccent),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
           ),
+          SizedBox(height: 10),
           TextField(
             controller: _stockController,
             keyboardType: TextInputType.number,
-            decoration: InputDecoration(labelText: 'Jumlah Stok'),
+            decoration: InputDecoration(
+              labelText: 'Jumlah Stok',
+              labelStyle: TextStyle(color: Colors.blueAccent),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
           ),
         ],
       ),
@@ -232,13 +258,13 @@ class _AddProductDialogState extends State<AddProductDialog> {
             widget.onAdd(name, price, stock);
             Navigator.of(context).pop();
           },
-          child: Text('Simpan'),
+          child: Text('Simpan', style: TextStyle(color: Colors.blueAccent)),
         ),
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: Text('Batal'),
+          child: Text('Batal', style: TextStyle(color: Colors.red)),
         ),
       ],
     );
@@ -272,23 +298,37 @@ class _EditProductDialogState extends State<EditProductDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Edit Produk'),
+      title: Text('Edit Produk', style: TextStyle(fontWeight: FontWeight.bold)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
             controller: _nameController,
-            decoration: InputDecoration(labelText: 'Nama Produk'),
+            decoration: InputDecoration(
+              labelText: 'Nama Produk',
+              labelStyle: TextStyle(color: Colors.blueAccent),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
           ),
+          SizedBox(height: 10),
           TextField(
             controller: _priceController,
             keyboardType: TextInputType.number,
-            decoration: InputDecoration(labelText: 'Harga Produk'),
+            decoration: InputDecoration(
+              labelText: 'Harga Produk',
+              labelStyle: TextStyle(color: Colors.blueAccent),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
           ),
+          SizedBox(height: 10),
           TextField(
             controller: _stockController,
             keyboardType: TextInputType.number,
-            decoration: InputDecoration(labelText: 'Jumlah Stok'),
+            decoration: InputDecoration(
+              labelText: 'Jumlah Stok',
+              labelStyle: TextStyle(color: Colors.blueAccent),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
           ),
         ],
       ),
@@ -307,13 +347,13 @@ class _EditProductDialogState extends State<EditProductDialog> {
             );
             Navigator.of(context).pop();
           },
-          child: Text('Simpan'),
+          child: Text('Simpan', style: TextStyle(color: Colors.blueAccent)),
         ),
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: Text('Batal'),
+          child: Text('Batal', style: TextStyle(color: Colors.red)),
         ),
       ],
     );

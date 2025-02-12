@@ -37,11 +37,17 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Welcome to Aplikasir, ${widget.username}"),
+        title: Text(
+          "Welcome to Aplikasir, ${widget.username}",
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.blueAccent, // Sesuaikan dengan warna login
+        centerTitle: true, // Memusatkan judul
+        elevation: 4, // Menambahkan sedikit bayangan untuk kesan modern
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
@@ -58,9 +64,10 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        backgroundColor: Colors.blue, // Menambahkan warna latar belakang untuk BottomNavigationBar
-        selectedItemColor: const Color.fromARGB(255, 6, 90, 237), // Warna item yang dipilih
-        unselectedItemColor: const Color.fromARGB(255, 6, 90, 237), // Warna item yang tidak dipilih
+        backgroundColor: Colors.blueAccent, // Sesuaikan dengan warna login
+        selectedItemColor: const Color.fromARGB(255, 11, 106, 239), // Warna item yang dipilih
+        unselectedItemColor: Color.fromARGB(255, 11, 106, 239), // Warna item yang tidak dipilih
+        showUnselectedLabels: true, // Menampilkan label untuk item yang tidak dipilih
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),

@@ -78,24 +78,59 @@ class _AddEditUserPageState extends State<AddEditUserPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.user == null ? 'Tambah Pengguna' : 'Edit Pengguna')),
+      appBar: AppBar(
+        title: Text(
+          widget.user == null ? 'Tambah Pengguna' : 'Edit Pengguna',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.blueAccent,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            // Username input field
             TextField(
               controller: _usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
+              decoration: InputDecoration(
+                labelText: 'Username',
+                labelStyle: TextStyle(color: Colors.blueAccent),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.blueAccent),
+                ),
+              ),
             ),
+            SizedBox(height: 16),
+            // Password input field
             TextField(
               controller: _passwordController,
               obscureText: true,
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: InputDecoration(
+                labelText: 'Password',
+                labelStyle: TextStyle(color: Colors.blueAccent),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.blueAccent),
+                ),
+              ),
             ),
             SizedBox(height: 20),
+            // Save button
             ElevatedButton(
               onPressed: _saveUser,
               child: Text(widget.user == null ? 'Tambah' : 'Update'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white, padding: EdgeInsets.symmetric(vertical: 14), backgroundColor: Colors.blueAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              ),
             ),
           ],
         ),

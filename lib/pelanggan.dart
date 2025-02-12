@@ -139,35 +139,51 @@ class _PelangganPageState extends State<PelangganPage> {
     }
   }
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Daftar Pelanggan")),
+      appBar: AppBar(
+        title: Text("Daftar Pelanggan", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.blueAccent,
+        centerTitle: true,
+        elevation: 4,
+      ),
       body: ListView.builder(
         itemCount: _pelangganList.length,
         itemBuilder: (context, index) {
           final pelanggan = _pelangganList[index];
 
           return Card(
-            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            margin: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            elevation: 4, // Bayangan untuk kesan lebih modern
             child: ListTile(
-              title: Text(pelanggan['namapelanggan']!),
-              subtitle: Text("Telepon: ${pelanggan['nomortelepon']}\nAlamat: ${pelanggan['alamat']}"),
+              title: Text(
+                pelanggan['namapelanggan']!,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Telepon: ${pelanggan['nomortelepon']}", style: TextStyle(fontSize: 14)),
+                  Text("Alamat: ${pelanggan['alamat']}", style: TextStyle(fontSize: 14)),
+                ],
+              ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.edit, color: Colors.blue),
+                    icon: Icon(Icons.edit, color: Colors.blueAccent),
                     onPressed: () {
                       print("Edit button pressed for ID: ${pelanggan['pelangganid']}");
-                      _tampilkanDialog(id: pelanggan['pelangganid']);
+                      _tampilkanDialog(id: int.parse(pelanggan['pelangganid']!));
                     },
                   ),
                   IconButton(
                     icon: Icon(Icons.delete, color: Colors.red),
                     onPressed: () {
                       print("Delete button pressed for ID: ${pelanggan['pelangganid']}");
-                      _hapusPelanggan(pelanggan['pelangganid']);
+                      _hapusPelanggan(int.parse(pelanggan['pelangganid']!));
                     },
                   ),
                 ],
@@ -178,6 +194,7 @@ class _PelangganPageState extends State<PelangganPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _tampilkanDialog(),
+        backgroundColor: Colors.blueAccent,
         child: Icon(Icons.add),
         tooltip: "Tambah Pelanggan",
       ),
@@ -188,7 +205,7 @@ class _PelangganPageState extends State<PelangganPage> {
   void _tampilkanDialog({int? id}) {
     if (id != null) {
       // Jika id ada, mode edit
-      final pelanggan = _pelangganList.firstWhere((p) => p['pelangganid'] == id);
+      final pelanggan = _pelangganList.firstWhere((p) => int.parse(p['pelangganid']!) == id);
       _namaController.text = pelanggan['namapelanggan']!;
       _teleponController.text = pelanggan['nomortelepon']!;
       _alamatController.text = pelanggan['alamat']!;
@@ -204,23 +221,39 @@ class _PelangganPageState extends State<PelangganPage> {
       builder: (context) {
         return AlertDialog(
           title: Text(id == null ? "Tambah Pelanggan" : "Edit Pelanggan"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _namaController,
-                decoration: InputDecoration(labelText: "Nama"),
-              ),
-              TextField(
-                controller: _teleponController,
-                decoration: InputDecoration(labelText: "Nomor Telepon"),
-                keyboardType: TextInputType.phone,
-              ),
-              TextField(
-                controller: _alamatController,
-                decoration: InputDecoration(labelText: "Alamat"),
-              ),
-            ],
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _namaController,
+                  decoration: InputDecoration(
+                    labelText: "Nama",
+                    labelStyle: TextStyle(color: Colors.blueAccent),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+                SizedBox(height: 10),
+                TextField(
+                  controller: _teleponController,
+                  decoration: InputDecoration(
+                    labelText: "Nomor Telepon",
+                    labelStyle: TextStyle(color: Colors.blueAccent),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  keyboardType: TextInputType.phone,
+                ),
+                SizedBox(height: 10),
+                TextField(
+                  controller: _alamatController,
+                  decoration: InputDecoration(
+                    labelText: "Alamat",
+                    labelStyle: TextStyle(color: Colors.blueAccent),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -233,6 +266,10 @@ class _PelangganPageState extends State<PelangganPage> {
                 Navigator.pop(context);
               },
               child: Text("Simpan"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blueAccent,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
           ],
         );

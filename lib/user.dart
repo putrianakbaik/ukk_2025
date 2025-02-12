@@ -39,37 +39,50 @@ class _UserManagementPageState extends State<UserManagementPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Manajemen Pengguna')),
+      appBar: AppBar(
+        title: Text('Manajemen Pengguna', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.blueAccent,
+        elevation: 4,
+      ),
       body: _users.isEmpty
-          ? Center(child: Text('Tidak ada pengguna'))
+          ? Center(child: Text('Tidak ada pengguna', style: TextStyle(fontSize: 16, color: Colors.grey)))
           : ListView.builder(
               itemCount: _users.length,
               itemBuilder: (context, index) {
                 final user = _users[index];
-                return ListTile(
-                  title: Text(user['username']),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () async {
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AddEditUserPage(user: user),
-                            ),
-                          );
-                          if (result == true) _fetchUsers();
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          _deleteUser(user['id']);
-                        },
-                      ),
-                    ],
+                return Card(
+                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 5,
+                  child: ListTile(
+                    contentPadding: EdgeInsets.all(16),
+                    title: Text(
+                      user['username'],
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit, color: Colors.blue),
+                          onPressed: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddEditUserPage(user: user),
+                              ),
+                            );
+                            if (result == true) _fetchUsers();
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            _deleteUser(user['id']);
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -83,7 +96,54 @@ class _UserManagementPageState extends State<UserManagementPage> {
           if (result == true) _fetchUsers();
         },
         child: Icon(Icons.add),
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.blueAccent,
+        tooltip: 'Tambah Pengguna',
+      ),
+    );
+  }
+}
+
+class AddEditUserPage extends StatelessWidget {
+  final Map<String, dynamic>? user;
+
+  const AddEditUserPage({Key? key, this.user}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final TextEditingController usernameController =
+        TextEditingController(text: user?['username'] ?? '');
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(user == null ? 'Tambah Pengguna' : 'Edit Pengguna'),
+        backgroundColor: Colors.blueAccent,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: usernameController,
+              decoration: InputDecoration(
+                labelText: 'Username',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // Implementasi penyimpanan atau pembaruan data pengguna
+                Navigator.pop(context, true);
+              },
+              child: Text(user == null ? 'Simpan' : 'Perbarui'),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 14), backgroundColor: Colors.blueAccent,
+                shape: RoundedRectangleBorder(borderRadius: 
+                BorderRadius.circular(12)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
